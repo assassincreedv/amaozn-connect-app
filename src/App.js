@@ -54,7 +54,23 @@ const LiveCaptions = () => {
         client.subscribe('/topic/message', (message) => {
           const body = JSON.parse(message.body);
           console.log(body)
-          setCaptions(prevCaptions => [...prevCaptions, body]);
+          setCaptions(prevCaptions => {
+            const lastCaption = prevCaptions[prevCaptions.length - 1];
+            
+            // 如果当前字幕与上一个字幕相同，则不进行更新
+            if (lastCaption && lastCaption.speaker === body.speaker && lastCaption.caption === body.caption) {
+                return prevCaptions;
+            }
+        
+            // 如果内容部分相同且当前字幕不为空，则替换原有内容
+            if (lastCaption && lastCaption.speaker === body.speaker && lastCaption.caption.length > 1 && body.caption.startsWith(lastCaption.caption.substring(0, lastCaption.caption.length - 1))) {
+                const updatedLastCaption = { ...lastCaption, caption: body.caption };
+                return [...prevCaptions.slice(0, -1), updatedLastCaption];
+            }
+        
+            // 如果上述条件均不满足，则添加新字幕
+            return [...prevCaptions, body];
+        });
         });
       },
       // 这里添加了其他配置项，如reconnectDelay
