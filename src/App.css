@@ -36,3 +36,30 @@
     transform: rotate(360deg);
   }
 }
+
+
+.caption {
+  padding: 8px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  display: inline-block;
+  max-width: 80%;
+}
+
+.customer {
+  background-color: #daf8cb;
+  align-self: flex-start;
+
+}
+
+.agent {
+  background-color: #bbdefb;
+  align-self: flex-end;
+}
+
+.captions-container {
+  display: flex;
+  flex-direction: column;
+  height: 550px;
+  overflow-y: scroll;
+}
