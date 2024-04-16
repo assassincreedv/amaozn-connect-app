@@ -63,3 +63,7 @@
   height: 550px;
   overflow-y: scroll;
 }
+
+#softphone-container iframe {
+  display: none;
+}
