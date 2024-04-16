@@ -31,17 +31,48 @@ const ConnectSoftphone = () => {
   return <div id="softphone-container" style={{height: "600px" }} />;
 };
 
-const LiveCaptions = () => {
-  
+const host = "localhost"
 
+const host1 = "44.241.137.220"
+
+const LiveCaptions = () => {
 
   const [captions, setCaptions] = useState([]);
+  const [summary, setSummary] = useState('');
   const captionsContainerRef = useRef(null);
+  const websocketUrl = "ws:/" + host + ":8082/ws";
+
+  const clearCaptions = () => {
+    setCaptions([]); 
+    setSummary(''); 
+  };
+
+  const buttonStyle = {
+    backgroundColor: '#2185d0', 
+    width: '20%',
+    color: '#FFFFFF',
+    border: 'none', 
+    borderRadius: '5px', 
+    padding: '10px 20px', 
+    fontSize: '16px', 
+    cursor: 'pointer', 
+    margin: '10px 0'
+  };
+
+  const fetchSummary = async (contactId) => {
+    try {
+      const response = await fetch(`/api/v1/connect/live-transcription/summary` + contactId, { method: 'GET'});
+      const data = await response.json();
+      setSummary(data);
+    } catch (error) {
+      console.error('Error fetching summary:', error);
+    }
+  };
 
   useEffect(() => {
     const client = new Client({
-      brokerURL: "ws://44.241.137.220:8082/ws", 
-      webSocketFactory: () => new SockJS("http://44.241.137.220:8082/ws"),
+      brokerURL: websocketUrl, 
+      webSocketFactory: () => new SockJS("http://" + host + ":8082/ws"),
       connectHeaders: {
         login: "test",
         passcode: "connect123",
@@ -54,23 +85,45 @@ const LiveCaptions = () => {
         client.subscribe('/topic/message', (message) => {
           const body = JSON.parse(message.body);
           console.log(body)
-          setCaptions(prevCaptions => {
-            const lastCaption = prevCaptions[prevCaptions.length - 1];
+          if (body.type === "LARK") {
+            setCaptions(prevCaptions => {
+                  // 查找同一个speaker且streamId相同的最后一条消息
+                  const lastCaptionOfSameSpeakerAndStream = prevCaptions.slice().reverse().find(caption => caption.speaker === body.speaker && caption.streamId === body.streamId);
             
-            // 如果当前字幕与上一个字幕相同，则不进行更新
-            if (lastCaption && lastCaption.speaker === body.speaker && lastCaption.caption === body.caption) {
-                return prevCaptions;
-            }
-        
-            // 如果内容部分相同且当前字幕不为空，则替换原有内容
-            if (lastCaption && lastCaption.speaker === body.speaker && lastCaption.caption.length > 1 && body.caption.startsWith(lastCaption.caption.substring(0, lastCaption.caption.length - 1))) {
-                const updatedLastCaption = { ...lastCaption, caption: body.caption };
-                return [...prevCaptions.slice(0, -1), updatedLastCaption];
-            }
-        
-            // 如果上述条件均不满足，则添加新字幕
-            return [...prevCaptions, body];
-        });
+                  // 如果找到了相同speaker和streamId的消息，则更新这条消息的内容
+                  if (lastCaptionOfSameSpeakerAndStream) {
+                      const updatedCaptions = prevCaptions.map(caption => {
+                          if (caption === lastCaptionOfSameSpeakerAndStream) {
+                              return { ...caption, caption: body.caption };
+                          }
+                          return caption;
+                      });
+                      return updatedCaptions;
+                  }
+            
+                  // 如果上述条件不满足，则添加新字幕
+                  return [...prevCaptions, body];
+            });
+          }
+          else {
+            setCaptions(prevCaptions => {
+              const lastCaption = prevCaptions[prevCaptions.length - 1];
+              
+              // 如果当前字幕与上一个字幕相同，则不进行更新
+              if (lastCaption && lastCaption.speaker === body.speaker && lastCaption.caption === body.caption) {
+                  return prevCaptions;
+              }
+          
+              // 如果内容部分相同且当前字幕不为空，则替换原有内容
+              if (lastCaption && lastCaption.speaker === body.speaker && lastCaption.caption.length > 1 && body.caption.startsWith(lastCaption.caption.substring(0, lastCaption.caption.length - 1))) {
+                  const updatedLastCaption = { ...lastCaption, caption: body.caption };
+                  return [...prevCaptions.slice(0, -1), updatedLastCaption];
+              }
+          
+              // 如果上述条件均不满足，则添加新字幕
+              return [...prevCaptions, body];
+          });
+          }
         });
       },
       // 这里添加了其他配置项，如reconnectDelay
@@ -93,12 +146,15 @@ const LiveCaptions = () => {
   }, [captions]);
 
   return (
-    <div ref={captionsContainerRef} className="captions-container">
-      {captions.map((caption, index) => (
-        <div key={index} className={`caption ${caption.speaker === 'Customer' ? 'customer' : 'agent'}`}>
-          <strong>{caption.speaker === 'Customer' ? '客户' : '服务代表'}:</strong> {caption.caption}
-        </div>
-      ))}
+    <div>
+      <button onClick={clearCaptions} style={buttonStyle}>清除字幕</button>
+        <div ref={captionsContainerRef} className="captions-container">
+        {captions.map((caption, index) => (
+          <div key={index} className={`caption ${caption.speaker === 'Customer' ? 'customer' : 'agent'}`}>
+            <strong>{caption.speaker === 'Customer' ? '客户' : '服务代表'}:</strong> {caption.caption}
+          </div>
+        ))}
+      </div>
     </div>
   );
 
