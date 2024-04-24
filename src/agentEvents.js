@@ -1,5 +1,9 @@
 import React from 'react';
+import { useSession } from './session';
 
+
+const useAgentEvents = () => {
+  const { session, setSession } = useSession();
 
 
 const subscribeToAgentEvents = (agent) => {
@@ -7,7 +11,7 @@ const subscribeToAgentEvents = (agent) => {
     // updateSessionAgent(agent)
     console.log("Subscribing to events for agent " + agent.getName());
     console.log("Agent is currently in status of " + agent.getStatus().name);
-  
+    // updateAgent(agent)
     agent.onRefresh(handleAgentRefresh);
     agent.onStateChange(handleAgentRefresh);
     agent.onRoutable(handleAgentRoutable);
@@ -22,7 +26,8 @@ const subscribeToAgentEvents = (agent) => {
       "[agent.onRefresh] Agent data refreshed. Agent status is " +
       agent.getStatus().agentStateARN
     );
-    handleEndpoints(agent);
+    // updateAgent(agent)
+    // handleEndpoints(agent);
 
   };
 
@@ -31,7 +36,6 @@ const subscribeToAgentEvents = (agent) => {
       "[agent.onRoutable] Agent is routable. Agent status is " +
       agent.getStatus().agentStateARN
     );
-    handleEndpoints(agent);
 
 
   };
@@ -41,7 +45,6 @@ const subscribeToAgentEvents = (agent) => {
       "[agent.onNotRoutable] Agent is online, but not routable. Agent status is " +
       agent.getStatus().agentStateARN
     );
-    handleEndpoints(agent);
 
 
   };
@@ -51,24 +54,24 @@ const subscribeToAgentEvents = (agent) => {
       "[agent.onOffline] Agent is offline. Agent status is " +
       agent.getStatus().agentStateARN   
     );
-    handleEndpoints(agent);
   };
 
 
-  const handleEndpoints = (agent) => {
-    var queuesARNs = agent.getAllQueueARNs();
-   agent.getEndpoints(
-   queuesARNs,
-   {
-      success: function(data) {
-         var endpoints = data.endpoints; // or data.addresses
-         console.log(data)
-      },
-      failure: function(err) {
-      }
-   }
-);
-  }
+  const updateAgent = (newAgent) => {
+    // 创建一个新的 session 对象，其中包含更新后的 contacts
+    const updatedSession = {
+      ...session, // 复制原始 session 对象的其他属性
+      agent:newAgent, // 更新 contacts
+    };
+
+    // 使用 setSession 函数更新 session 对象
+    setSession(updatedSession);
+  };
+
+
+  return subscribeToAgentEvents
+}
+
   
 
-  export default subscribeToAgentEvents
+  export default useAgentEvents

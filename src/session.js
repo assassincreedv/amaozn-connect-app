@@ -11,8 +11,7 @@ export const SessionProvider = ({ children }) => {
     routingProfileFileLoaded: false,
     currentQueueDPLoaded: '',
     currentContactID: '',
-    agent: '',
-    contactStatus: '',
+    contactStatus: 'initial',
   });
 
   // 返回 SessionContext.Provider，将 session 对象和更新函数提供给子组件

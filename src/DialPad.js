@@ -45,8 +45,8 @@ const DialPad = ({ onNumberPress, onMakeCall, onEndCall }) => {
         <div className="digit">#</div>
       </div>
       <div className="botrow">
-        <div onClick={handleDeleteClick}>D</div>
-        <div id="call" onClick={handleMakeCallClick}><i className="fa fa-phone" aria-hidden="true">make call</i></div>
+      <i className="fa fa-long-arrow-left dig" aria-hidden="true" onClick={handleDeleteClick}></i>
+        <div id="call" onClick={handleMakeCallClick}><i className="fa fa-phone" aria-hidden="true"></i></div>
         <i className="fa fa-star-o dig" aria-hidden="true"></i>
       </div>
     </div>
