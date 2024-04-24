@@ -3,33 +3,47 @@ import './App.css';
 import SockJS from 'sockjs-client';
 import React, { useEffect, useState, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
+import CustomizeCCP from './CustomizeCCP';
 
 
 
 
-const ConnectSoftphone = () => {
-  useEffect(() => {
-      // 确保这段代码在window.connect已加载后执行
-      const initCCP = () => {
-          const containerDiv = document.getElementById("softphone-container");
-          window.connect.core.initCCP(containerDiv, {
-              ccpUrl: "https://hitalentech-testing.my.connect.aws/connect/ccp-v2/", // 替换为你的CCP URL
-              loginPopupAutoClose: true, // 使用登录弹窗
-              softphone: {
-                  allowFramedSoftphone: true
-              }
-          });
-      };
+// const ConnectSoftphone = () => {
+//   useEffect(() => {
+//       // 确保这段代码在window.connect已加载后执行
+//       const initCCP = () => {
+//           const containerDiv = document.getElementById("softphone-container");
+//           window.connect.core.initCCP(containerDiv, {
+//               ccpUrl: "https://hitalentech-testing.my.connect.aws/connect/ccp-v2/", // 替换为你的CCP URL
+//               loginPopupAutoClose: true, // 使用登录弹窗
+//               softphone: {
+//                   allowFramedSoftphone: true
+//               }
+//           });
+//       };
 
-      if (window.connect) {
-          initCCP();
-      } else {
-          window.onload = initCCP;
-      }
-  }, []);
+//       if (window.connect) {
+//           initCCP();
+//       } else {
+//           window.onload = initCCP;
+//       }
+//   }, []);
 
-  return <div id="softphone-container" style={{height: "600px" }} />;
-};
+//   const makeCall = () => {
+   
+//     // eslint-disable-next-line no-undef
+//     var endpoint = connect.Endpoint.byPhoneNumber("+13478247453");
+//     // eslint-disable-next-line no-undef
+//     var agent = new connect.Agent();
+
+//     agent.connect(endpoint, {
+//     });
+//   }
+
+//   return <div id="softphone-container" style={{height: "500px" }} >
+//     <button onClick={makeCall}>make a call</button>
+//   </div>;
+// };
 
 const host = "localhost"
 
@@ -160,19 +174,70 @@ const LiveCaptions = () => {
 
 };
 
+
+const testPhoneBook={
+  'Shirley':'+13478247453',
+  'Xiaosong':'+16142645218'
+}
+
+
 function App() {
+
+  const[popWindow,setPopWindow] =useState(false)
+  const[number,setNumber] = useState()
+
+  const handleListItemClick = (clickedNumber) => {
+    setNumber(clickedNumber); // 更新 number
+    setPopWindow(true); // 设置 popWindow 为 true
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (popWindow && !e.target.closest('.popWindow')) {
+        setPopWindow(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [popWindow]);
+
+
   return (
     <div className="App">
-      <div style={{display:"flex", height:"600px"}}>
+      <div>
+      <h3>Phone Book</h3>
+        <ul>
+          {Object.entries(testPhoneBook).map(([name, number]) => (
+            <li key={name} onClick={() => handleListItemClick(number)}>
+              {name}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+    
+      <div className='phoneCall'>
+         <CustomizeCCP phoneNumber={number} popUp={popWindow}/>
+          <LiveCaptions />
+      </div>
+      
+
+    
+      {/* <div style={{display:"flex", height:"600px"}}>
         <div style={{width:"45%", marginRight:"10%"}}>
           <p>test amaozn connect</p>
-          <ConnectSoftphone />
+           <ConnectSoftphone /> 
+          <CustomizeCCP phoneNumber={number}/>
+          <LiveCaptions /> 
         </div>
         <div style={{height:"600px", width:"45%"}}>
           <p>实时字幕：</p>
-          <LiveCaptions />
         </div>
-      </div>
+      </div> */}
+     
      
      
     </div>
