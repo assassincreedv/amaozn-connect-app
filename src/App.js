@@ -8,42 +8,42 @@ import CustomizeCCP from './CustomizeCCP';
 
 
 
-const ConnectSoftphone = () => {
-  useEffect(() => {
-      // 确保这段代码在window.connect已加载后执行
-      const initCCP = () => {
-          const containerDiv = document.getElementById("softphone-container");
-          window.connect.core.initCCP(containerDiv, {
-              ccpUrl: "https://hitalentech-testing.my.connect.aws/connect/ccp-v2/", // 替换为你的CCP URL
-              loginPopupAutoClose: true, // 使用登录弹窗
-              softphone: {
-                  allowFramedSoftphone: true
-              }
-          });
-      };
+// const ConnectSoftphone = () => {
+//   useEffect(() => {
+//       // 确保这段代码在window.connect已加载后执行
+//       const initCCP = () => {
+//           const containerDiv = document.getElementById("softphone-container");
+//           window.connect.core.initCCP(containerDiv, {
+//               ccpUrl: "https://hitalentech-testing.my.connect.aws/connect/ccp-v2/", // 替换为你的CCP URL
+//               loginPopupAutoClose: true, // 使用登录弹窗
+//               softphone: {
+//                   allowFramedSoftphone: true
+//               }
+//           });
+//       };
 
-      if (window.connect) {
-          initCCP();
-      } else {
-          window.onload = initCCP;
-      }
-  }, []);
+//       if (window.connect) {
+//           initCCP();
+//       } else {
+//           window.onload = initCCP;
+//       }
+//   }, []);
 
-  const makeCall = () => {
+//   const makeCall = () => {
    
-    // eslint-disable-next-line no-undef
-    var endpoint = connect.Endpoint.byPhoneNumber("+13478247453");
-    // eslint-disable-next-line no-undef
-    var agent = new connect.Agent();
+//     // eslint-disable-next-line no-undef
+//     var endpoint = connect.Endpoint.byPhoneNumber("+13478247453");
+//     // eslint-disable-next-line no-undef
+//     var agent = new connect.Agent();
 
-    agent.connect(endpoint, {
-    });
-  }
+//     agent.connect(endpoint, {
+//     });
+//   }
 
-  return <div id="softphone-container" style={{height: "500px" }} >
-    <button onClick={makeCall}>make a call</button>
-  </div>;
-};
+//   return <div id="softphone-container" style={{height: "500px" }} >
+//     <button onClick={makeCall}>make a call</button>
+//   </div>;
+// };
 
 const host = "localhost"
 

@@ -64,9 +64,9 @@
   overflow-y: scroll;
 }
 
-/* #softphone-container iframe {
+#softphone-container iframe {
   display: none;
-} */
+}
 
 /* .popWindow {
   position: fixed;
